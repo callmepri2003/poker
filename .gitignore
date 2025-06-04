@@ -1,0 +1,88 @@
+# General
+*.log
+*.pot
+*.pyc
+__pycache__/
+*.py[cod]
+*.swp
+.DS_Store
+.env
+*.sqlite3
+*.db
+*.pem
+*.p12
+*.crt
+*.key
+*.lock
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Node and React - frontend/
+frontend/node_modules/
+frontend/.env
+frontend/.env.local
+frontend/.env.development
+frontend/.env.production
+frontend/build/
+frontend/dist/
+frontend/.next/
+frontend/.turbo/
+frontend/coverage/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-lock.yaml
+frontend/.parcel-cache/
+frontend/.eslintcache
+
+# Django - backend/
+backend/db.sqlite3
+backend/db.sqlite3-journal
+backend/media/
+backend/staticfiles/
+backend/static/
+backend/.env
+backend/.venv/
+backend/venv/
+backend/env/
+backend/*.pyc
+backend/__pycache__/
+
+# Python virtual environments (if mistakenly at root)
+.venv/
+venv/
+env/
+
+# MyPy & coverage
+.mypy_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# VSCode debug/launch config
+.vscode/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Celery beat scheduler
+celerybeat-schedule
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# Local config overrides
+*.local.*
