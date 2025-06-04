@@ -1,0 +1,240 @@
+openapi: 3.0.3
+info:
+  title: Single Player Poker MVP API
+  description: Minimal API for a single player poker game against computer opponents
+  version: 1.0.0
+  
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+
+paths:
+  /game:
+    post:
+      summary: Start a new poker game
+      description: Initialize a new game with player and 3 computer opponents
+      responses:
+        '201':
+          description: New game created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameState'
+        '500':
+          description: Server error
+          
+  /game/{gameId}/bet:
+    post:
+      summary: Place a bet (call, fold, or raise)
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BetAction'
+      responses:
+        '200':
+          description: Bet placed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameState'
+        '400':
+          description: Invalid bet action
+        '404':
+          description: Game not found
+          
+  /game/{gameId}/draw:
+    post:
+      summary: Draw new cards (discard and replace)
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DrawAction'
+      responses:
+        '200':
+          description: Cards drawn successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameState'
+        '400':
+          description: Invalid draw action
+        '404':
+          description: Game not found
+          
+  /game/{gameId}:
+    get:
+      summary: Get current game state
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Current game state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameState'
+        '404':
+          description: Game not found
+
+components:
+  schemas:
+    GameState:
+      type: object
+      properties:
+        gameId:
+          type: string
+          format: uuid
+        phase:
+          type: string
+          enum: [betting, drawing, showdown, finished]
+        pot:
+          type: integer
+          description: Current pot amount
+        playerHand:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+        playerChips:
+          type: integer
+          description: Player's remaining chips
+        opponents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Opponent'
+        winner:
+          type: string
+          nullable: true
+          description: Winner of the hand (null if game not finished)
+        winningHand:
+          type: string
+          nullable: true
+          description: Description of winning hand
+        canCall:
+          type: boolean
+        canRaise:
+          type: boolean
+        canFold:
+          type: boolean
+        currentBet:
+          type: integer
+          description: Current bet to call
+      required:
+        - gameId
+        - phase
+        - pot
+        - playerHand
+        - playerChips
+        - opponents
+        - canCall
+        - canRaise
+        - canFold
+        - currentBet
+        
+    Card:
+      type: object
+      properties:
+        suit:
+          type: string
+          enum: [hearts, diamonds, clubs, spades]
+        rank:
+          type: string
+          enum: [2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A]
+        selected:
+          type: boolean
+          description: Whether card is selected for discarding
+      required:
+        - suit
+        - rank
+        - selected
+        
+    Opponent:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [active, folded]
+        chips:
+          type: integer
+        cardCount:
+          type: integer
+          description: Number of cards opponent has
+        hand:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+          nullable: true
+          description: Opponent's cards (only visible during showdown)
+      required:
+        - id
+        - name
+        - status
+        - chips
+        - cardCount
+        
+    BetAction:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [call, fold, raise]
+        amount:
+          type: integer
+          nullable: true
+          description: Raise amount (required if action is raise)
+      required:
+        - action
+        
+    DrawAction:
+      type: object
+      properties:
+        discardIndices:
+          type: array
+          items:
+            type: integer
+          description: Indices of cards to discard (0-4)
+          maxItems: 5
+      required:
+        - discardIndices
+        
+  responses:
+    Error:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+            required:
+              - error
+              - message
